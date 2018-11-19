@@ -1,0 +1,32 @@
+{
+    "editor.formatOnPaste": true,
+    "editor.formatOnSave": true,
+    "editor.formatOnType": true,
+    "beautify.config": "string|Object.<string,string|number|boolean>",
+    "beautify.language": {
+        "js": {
+            "type": [
+        "javascript",
+        "json",
+        "jsonc"
+      ],
+            "filename": [
+        ".jshintrc",
+        ".jsbeautifyrc"
+      ],
+            "ext": [
+          "js",
+          "json",
+          "ts"
+      ]
+        },
+        "css": [
+      "css",
+      "scss"
+    ],
+        "html": [
+      "htm",
+      "html"
+    ]
+    }
+}

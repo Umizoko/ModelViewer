@@ -1,0 +1,15 @@
+{
+    "compilerOptions": {
+        "module": "es2015",
+        "target": "es2015",
+        "sourceMap": true,
+        "types": [
+            "babylonjs",
+            // "anotherAwesomeDependency"
+         ],
+        "esModuleInterop": true,
+    },
+    // "exclude": [
+    // "node_modules"
+    // ],
+}
