@@ -143,6 +143,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var babylonjs__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(babylonjs__WEBPACK_IMPORTED_MODULE_0__);
 
 class Game {
+    // TODO: gltf Modelの読み込み
     /**
      *
      */
@@ -153,19 +154,81 @@ class Game {
         this._engine = new babylonjs__WEBPACK_IMPORTED_MODULE_0__["Engine"](this._canvas, true);
     }
     createScene() {
+        // Scene
         this._scene = new babylonjs__WEBPACK_IMPORTED_MODULE_0__["Scene"](this._engine);
-        this._camera = new babylonjs__WEBPACK_IMPORTED_MODULE_0__["FreeCamera"]('camera', new babylonjs__WEBPACK_IMPORTED_MODULE_0__["Vector3"](0, 5, -10), this._scene);
+        // this._scene.clearColor = new Color4( 0.2, 0.2, 0.2, 1 );
+        // this._scene.ambientColor = new Color3( 0.3, 0.3, 0.3 );
+        // FIXME: Debugを読み込む
+        // Debug
+        this._scene.debugLayer.show();
+        // Camera
+        this._camera = new babylonjs__WEBPACK_IMPORTED_MODULE_0__["ArcRotateCamera"]('Camera', -Math.PI / 2, Math.PI / 3, 10, babylonjs__WEBPACK_IMPORTED_MODULE_0__["Vector3"].Zero(), this._scene);
         this._camera.setTarget(babylonjs__WEBPACK_IMPORTED_MODULE_0__["Vector3"].Zero());
         this._camera.attachControl(this._canvas, false);
+        // Light
         this._light = new babylonjs__WEBPACK_IMPORTED_MODULE_0__["HemisphericLight"]('light', new babylonjs__WEBPACK_IMPORTED_MODULE_0__["Vector3"](0, 1, 0), this._scene);
-        let sphere = babylonjs__WEBPACK_IMPORTED_MODULE_0__["MeshBuilder"].CreateSphere('sphere', { segments: 16, diameter: 2 }, this._scene);
-        sphere.position.y = 1;
-        let ground = babylonjs__WEBPACK_IMPORTED_MODULE_0__["MeshBuilder"].CreateGround('ground', { width: 6, height: 6, subdivisions: 2 }, this._scene);
+        // Mesh
+        // 球体
+        this._sphere = babylonjs__WEBPACK_IMPORTED_MODULE_0__["MeshBuilder"].CreateSphere('sphere', {
+            segments: 16,
+            diameter: 2
+        }, this._scene);
+        this._sphere.position.y = 1;
+        // 地面
+        let ground = babylonjs__WEBPACK_IMPORTED_MODULE_0__["MeshBuilder"].CreateGround('ground', {
+            width: 6,
+            height: 6,
+            subdivisions: 2
+        }, this._scene);
+        // Box
+        this._box = babylonjs__WEBPACK_IMPORTED_MODULE_0__["MeshBuilder"].CreateBox('box', {
+            height: 5,
+            width: 2,
+            depth: 0.5,
+        }, this._scene);
+        // Material
+        const myMaterial = new babylonjs__WEBPACK_IMPORTED_MODULE_0__["StandardMaterial"]('myMaterial', this._scene);
+        myMaterial.diffuseColor = new babylonjs__WEBPACK_IMPORTED_MODULE_0__["Color3"](0.2, 0.2, 0.2);
+        myMaterial.specularColor = new babylonjs__WEBPACK_IMPORTED_MODULE_0__["Color3"](0.5, 0.6, 0.7);
+        // myMaterial.emissiveColor = new Color3( 0.2, 0.2, 0.2 );
+        // myMaterial.ambientColor = new Color3( 0.2, 0.9, 0.5 );
+        this._box.material = myMaterial;
+        // Custom Param Shape
+        let myPoints = [];
+        var point1 = new babylonjs__WEBPACK_IMPORTED_MODULE_0__["Vector3"](-1, 0, 0);
+        var point2 = new babylonjs__WEBPACK_IMPORTED_MODULE_0__["Vector3"](0, 1, 1);
+        var point3 = new babylonjs__WEBPACK_IMPORTED_MODULE_0__["Vector3"](1, 1, 0);
+        myPoints.push(point1);
+        myPoints.push(point2);
+        myPoints.push(point3);
+        // const lines = MeshBuilder.CreateLines( 'line', {
+        //         points: myPoints
+        //     },
+        //     this._scene );
+        // lines.position.x = 1;
+        // lines.color = new Color3( 1, 0.7, 0.7 );
+        // skybox
+        const skybox = babylonjs__WEBPACK_IMPORTED_MODULE_0__["Mesh"].CreateBox('skyBox', 100, this._scene);
+        const skyboxMaterial = new babylonjs__WEBPACK_IMPORTED_MODULE_0__["StandardMaterial"]('skyBox', this._scene);
+        skyboxMaterial.backFaceCulling = false;
+        skyboxMaterial.disableLighting = true;
+        skybox.material = skyboxMaterial;
+        skybox.infiniteDistance = true;
+        // textureがない
+        // ..../../dds
+        skyboxMaterial.reflectionTexture = new babylonjs__WEBPACK_IMPORTED_MODULE_0__["CubeTexture"]('texture/skybox', this._scene);
+        skyboxMaterial.reflectionTexture.coordinatesMode = babylonjs__WEBPACK_IMPORTED_MODULE_0__["Texture"].SKYBOX_MODE;
+        skybox.renderingGroupId = 0;
     }
     doRender() {
+        // render Loop
         this._engine.runRenderLoop(() => {
+            // this._sphere.position.y = Math.sin( Date.now() );
+            const forceRotation = new babylonjs__WEBPACK_IMPORTED_MODULE_0__["Vector3"](0.08, 0.001, 0.05);
+            this._box.addRotation(forceRotation.x, forceRotation.y, forceRotation.z);
             this._scene.render();
         });
+        // canvas/widow resize
         window.addEventListener('resize', () => {
             this._engine.resize();
         });
@@ -184,45 +247,13 @@ class Game {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var babylonjs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! babylonjs */ "./node_modules/babylonjs/babylon.js");
-/* harmony import */ var babylonjs__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(babylonjs__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _Game__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Game */ "./src/js/Game.ts");
-
+/* harmony import */ var _Game__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Game */ "./src/js/Game.ts");
 
 window.addEventListener('DOMContentLoaded', () => {
-    let game = new _Game__WEBPACK_IMPORTED_MODULE_1__["default"]('renderCanvas');
+    let game = new _Game__WEBPACK_IMPORTED_MODULE_0__["default"]('renderCanvas');
     game.createScene();
     game.doRender();
 });
-// window.addEventListener('load', init);
-function init() {
-    // canvasDOMを取得
-    const canvas = document.getElementById("renderCanvas");
-    // 3Dエンジン取得
-    const engine = new babylonjs__WEBPACK_IMPORTED_MODULE_0__["Engine"](canvas, true);
-    // Scene作成
-    function createScene() {
-        // SceneObj作成
-        const scene = new babylonjs__WEBPACK_IMPORTED_MODULE_0__["Scene"](engine);
-        // Camera作成
-        const camera = new babylonjs__WEBPACK_IMPORTED_MODULE_0__["ArcRotateCamera"]("Camera", Math.PI / 2, Math.PI / 2, 2, babylonjs__WEBPACK_IMPORTED_MODULE_0__["Vector3"].Zero(), scene);
-        // Light作成
-        const HemiLight = new babylonjs__WEBPACK_IMPORTED_MODULE_0__["HemisphericLight"]("HemiLight", new babylonjs__WEBPACK_IMPORTED_MODULE_0__["Vector3"](1, 1, 0), scene);
-        // Mesh作成
-        const sphere = babylonjs__WEBPACK_IMPORTED_MODULE_0__["MeshBuilder"].CreateSphere("sphrer", { diameter: 1 }, scene);
-        return scene;
-    }
-    // Scene作成
-    const scene = createScene();
-    // render Loop
-    engine.runRenderLoop(() => {
-        scene.render();
-    });
-    // canvas/widow resize
-    window.addEventListener('resize', () => {
-        engine.resize();
-    });
-}
 
 
 /***/ }),
