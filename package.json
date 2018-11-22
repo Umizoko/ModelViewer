@@ -12,8 +12,11 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "babylonjs": "^3.3.0",
     "autoprefixer": "^9.3.1",
+    "babylonjs": "^3.3.0",
+    "babylonjs-inspector": "^3.3.0",
+    "babylonjs-loaders": "^3.3.0",
+    "babylonjs-serializers": "^3.3.0",
     "css-loader": "^1.0.1",
     "file-loader": "^2.0.0",
     "node-sass": "^4.10.0",

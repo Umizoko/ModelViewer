@@ -5,6 +5,9 @@
         "sourceMap": true,
         "types": [
             "babylonjs",
+            "babylonjs-serializers",
+            "babylonjs-inspector",
+            "babylonjs-loaders"
             // "anotherAwesomeDependency"
          ],
         "esModuleInterop": true,
