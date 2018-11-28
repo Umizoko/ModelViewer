@@ -245,6 +245,7 @@ class Game {
         this._camera.attachControl(this._canvas, false);
         // Light
         this._light = new babylonjs__WEBPACK_IMPORTED_MODULE_0__["HemisphericLight"]("light", new babylonjs__WEBPACK_IMPORTED_MODULE_0__["Vector3"](0, 1, 0), this._scene);
+        this._light.intensity = 0.1;
         // sphere
         // this._planeSphere = new PlaneSphere( this._scene );
         // SimpleLine
@@ -255,43 +256,44 @@ class Game {
         this._hdrSkybox = new _skybox_HDRSkybox__WEBPACK_IMPORTED_MODULE_4__["default"](this._scene, hdrTexture);
         // PBR Glass
         this._PBRGlass = new _object_PBRGlass__WEBPACK_IMPORTED_MODULE_5__["default"](this._scene, hdrTexture);
-        let gltfModel;
+        // Ground: mirror
+        let mirror = babylonjs__WEBPACK_IMPORTED_MODULE_0__["Mesh"].CreateBox("Mirror", 1.0, this._scene);
+        mirror.scaling = new babylonjs__WEBPACK_IMPORTED_MODULE_0__["Vector3"](100.0, 0.01, 100.0);
+        mirror.material = new babylonjs__WEBPACK_IMPORTED_MODULE_0__["StandardMaterial"]('mirror', this._scene);
+        mirror.material.reflectionTexture = new babylonjs__WEBPACK_IMPORTED_MODULE_0__["MirrorTexture"]('mirror', {
+            ratio: 1.0
+        }, this._scene, true);
+        mirror.material.reflectionTexture.mirrorPlane = new babylonjs__WEBPACK_IMPORTED_MODULE_0__["Plane"](0, -1, 0, -2);
+        mirror.material.reflectionTexture.renderList = [this._hdrSkybox.hdrSkybox];
+        mirror.material.reflectionTexture.level = 1.0;
+        mirror.material.reflectionTexture.adaptiveBlurKernel = 32;
+        mirror.position = new babylonjs__WEBPACK_IMPORTED_MODULE_0__["Vector3"](0, -2, 0);
         // gltf Model
-        const loader = babylonjs__WEBPACK_IMPORTED_MODULE_0__["SceneLoader"].Append("/assets/model/robot/", "scene.gltf", this._scene, (scene) => {
-            scene.createDefaultCamera(true, true, true);
-            let meshs = scene.meshes;
-            meshs.map(x => {
+        const loader = babylonjs__WEBPACK_IMPORTED_MODULE_0__["SceneLoader"].Append("/assets/model/robot/", "scene.gltf", this._scene, (objects) => {
+            objects.createDefaultCamera(true, true, true);
+            let meshes = objects.meshes;
+            console.log(meshes);
+            meshes.map(x => {
                 if (x.id === '__root__') {
                     x.scaling = new babylonjs__WEBPACK_IMPORTED_MODULE_0__["Vector3"](3, 3, 3);
-                    gltfModel = x;
+                    x.position.y = 10;
+                    let material = x.material;
+                    // material.metallic = 1.0;
+                    // material.roughness = 0;
                 }
+                // FIXME:　GLTFのModelだけ抽出
+                mirror.material.reflectionTexture.renderList.push(x);
+                // FIXME: PBRのモデルrの設定をする
+                // FIXME: GLTFモデルをBlenderでPBRを適応させる
             });
         });
-        let mirror = babylonjs__WEBPACK_IMPORTED_MODULE_0__["Mesh"].CreateBox("mirror", 1.0, this._scene);
-        mirror.scaling = new babylonjs__WEBPACK_IMPORTED_MODULE_0__["Vector3"](50, 0.01, 50);
-        mirror.receiveShadows = true;
-        // var mirrorMaterial: any = new StandardMaterial( 'mirror', this._scene );
-        // mirrorMaterial.reflectionTexture = new MirrorTexture( 'mirror', 512, this._scene, true );
-        // mirrorMaterial.reflectionTexture.mirrorPlane = new Plane( 0.0, -1.0, 0.0, 0.0 );
-        // // mirrorMaterial.reflectionTexture.renderList[this._PBRGlass.mesh, gltfModel];
-        // mirrorMaterial.reflectionTexture.renderList.push( this._PBRGlass );
-        // mirrorMaterial.reflectionTexture.level = 1.0;
-        // mirrorMaterial.reflectionTexture.adaptiveBlurKernel = 32;
-        // mirror.material = mirrorMaterial;
-        // Create and tweak the background material.
-        var backgroundMaterial = new BABYLON.BackgroundMaterial("backgroundMaterial", this._scene);
-        var mirrorMaterial = new BABYLON.MirrorTexture("mirror", 512, this._scene);
-        mirrorMaterial.mirrorPlane = new BABYLON.Plane(0, -1, 0, -2);
-        mirrorMaterial.renderList.push(this._PBRGlass.mesh);
-        // mirrorMaterial.renderList.push(gltfModel);
-        backgroundMaterial.reflectionTexture = mirrorMaterial;
-        mirror.material = backgroundMaterial;
-        mirror.position = new babylonjs__WEBPACK_IMPORTED_MODULE_0__["Vector3"](0, -2, 0);
         // Fog
-        // TODO: FOG
         // this._scene.fogMode = Scene.FOGMODE_LINEAR;
-        // this._scene.fogStart = 20.0;
-        // this._scene.fogEnd = 50.0;
+        // this._scene.fogMode = Scene.FOGMODE_EXP2;
+        // this._scene.fogColor = new Color3( 0, 0, 0 );
+        // this._scene.fogDensity = 0.005;
+        // this._scene.fogStart = 0.0;
+        // this._scene.fogEnd = 1000.0;
     }
     doRender() {
         // render Loop

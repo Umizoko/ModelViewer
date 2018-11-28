@@ -14,7 +14,8 @@ import {
     Mesh,
     MirrorTexture,
     Plane,
-    BackgroundMaterial
+    BackgroundMaterial,
+    Color3
 } from "babylonjs";
 
 // Debug Layer
@@ -84,6 +85,7 @@ export default class Game {
             new Vector3( 0, 1, 0 ),
             this._scene
         );
+        this._light.intensity = 0.1;
 
 
         // sphere
@@ -112,26 +114,57 @@ export default class Game {
             hdrTexture
         );
 
-        let gltfModel: any;
+        // Ground: mirror
+        let mirror: any = Mesh.CreateBox(
+            "Mirror",
+            1.0,
+            this._scene
+        );
+        mirror.scaling = new Vector3( 100.0, 0.01, 100.0 );
+        mirror.material = new StandardMaterial( 'mirror', this._scene );
+        mirror.material.reflectionTexture = new MirrorTexture(
+            'mirror', {
+                ratio: 1.0
+            },
+            this._scene,
+            true
+        );
+        mirror.material.reflectionTexture.mirrorPlane = new Plane( 0, -1, 0, -2 );
+        mirror.material.reflectionTexture.renderList = [ this._hdrSkybox.hdrSkybox ];
+        mirror.material.reflectionTexture.level = 1.0;
+        mirror.material.reflectionTexture.adaptiveBlurKernel = 32;
+        mirror.position = new Vector3( 0, -2, 0 );
 
         // gltf Model
         const loader = SceneLoader.Append( "/assets/model/robot/", "scene.gltf",
-            this._scene, ( scene ) => {
+            this._scene, ( objects ) => {
 
-                scene.createDefaultCamera( true, true, true );
+                objects.createDefaultCamera( true, true, true );
 
-                let meshs = scene.meshes;
+                let meshes = objects.meshes;
 
+                console.log( meshes );
 
-                meshs.map( x => {
+                meshes.map( x => {
 
                     if ( x.id === '__root__' ) {
-                        x.scaling = new Vector3( 3, 3, 3 );
 
-                        gltfModel = x;
+                        x.scaling = new Vector3( 3, 3, 3 );
+                        x.position.y = 10;
+
+                        let material: any = x.material;
+
+                        // material.metallic = 1.0;
+                        // material.roughness = 0;
 
                     }
 
+                    // FIXME:　GLTFのModelだけ抽出
+                    mirror.material.reflectionTexture.renderList.push( x );
+
+                    // FIXME: PBRのモデルrの設定をする
+
+                    // FIXME: GLTFモデルをBlenderでPBRを適応させる
 
                 } );
 
@@ -139,41 +172,13 @@ export default class Game {
             } );
 
 
-        let mirror = Mesh.CreateBox(
-            "mirror", 1.0,
-            this._scene
-        );
-        mirror.scaling = new Vector3( 50, 0.01, 50 );
-        mirror.receiveShadows = true;
-
-        // var mirrorMaterial: any = new StandardMaterial( 'mirror', this._scene );
-        // mirrorMaterial.reflectionTexture = new MirrorTexture( 'mirror', 512, this._scene, true );
-        // mirrorMaterial.reflectionTexture.mirrorPlane = new Plane( 0.0, -1.0, 0.0, 0.0 );
-        // // mirrorMaterial.reflectionTexture.renderList[this._PBRGlass.mesh, gltfModel];
-        // mirrorMaterial.reflectionTexture.renderList.push( this._PBRGlass );
-        // mirrorMaterial.reflectionTexture.level = 1.0;
-        // mirrorMaterial.reflectionTexture.adaptiveBlurKernel = 32;
-        // mirror.material = mirrorMaterial;
-
-        // Create and tweak the background material.
-        var backgroundMaterial = new BABYLON.BackgroundMaterial( "backgroundMaterial", this._scene );
-
-        var mirrorMaterial = new BABYLON.MirrorTexture( "mirror", 512, this._scene );
-        mirrorMaterial.mirrorPlane = new BABYLON.Plane( 0, -1, 0, -2 );
-        mirrorMaterial.renderList.push( this._PBRGlass.mesh );
-        // mirrorMaterial.renderList.push(gltfModel);
-
-        backgroundMaterial.reflectionTexture = mirrorMaterial;
-
-        mirror.material = backgroundMaterial;
-        mirror.position = new Vector3( 0, -2, 0 );
-
-
         // Fog
-        // TODO: FOG
         // this._scene.fogMode = Scene.FOGMODE_LINEAR;
-        // this._scene.fogStart = 20.0;
-        // this._scene.fogEnd = 50.0;
+        // this._scene.fogMode = Scene.FOGMODE_EXP2;
+        // this._scene.fogColor = new Color3( 0, 0, 0 );
+        // this._scene.fogDensity = 0.005;
+        // this._scene.fogStart = 0.0;
+        // this._scene.fogEnd = 1000.0;
 
 
     }
