@@ -15,7 +15,9 @@ import {
     MirrorTexture,
     Plane,
     BackgroundMaterial,
-    Color3
+    Color3,
+    CubeTexture,
+    PBRMetallicRoughnessMaterial
 } from "babylonjs";
 
 // Debug Layer
@@ -76,7 +78,6 @@ export default class Game {
         );
 
         this._camera.setTarget( Vector3.Zero() );
-
         this._camera.attachControl( this._canvas, false );
 
         // Light
@@ -85,7 +86,7 @@ export default class Game {
             new Vector3( 0, 1, 0 ),
             this._scene
         );
-        this._light.intensity = 0.1;
+        this._light.intensity = 0.0;
 
 
         // sphere
@@ -99,7 +100,7 @@ export default class Game {
         const hdrTexture = new HDRCubeTexture(
             "/assets/skybox/HDR_111_Parking_Lot_2_Ref.hdr",
             this._scene,
-            512
+            1024
         );
 
         // HDR Skybox
@@ -109,10 +110,10 @@ export default class Game {
         );
 
         // PBR Glass
-        this._PBRGlass = new PBRGlass(
-            this._scene,
-            hdrTexture
-        );
+        // this._PBRGlass = new PBRGlass(
+        //     this._scene,
+        //     hdrTexture
+        // );
 
         // Ground: mirror
         let mirror: any = Mesh.CreateBox(
@@ -132,39 +133,48 @@ export default class Game {
         mirror.material.reflectionTexture.mirrorPlane = new Plane( 0, -1, 0, -2 );
         mirror.material.reflectionTexture.renderList = [ this._hdrSkybox.hdrSkybox ];
         mirror.material.reflectionTexture.level = 1.0;
-        mirror.material.reflectionTexture.adaptiveBlurKernel = 32;
+        mirror.material.reflectionTexture.adaptiveBlurKernel = 8;
         mirror.position = new Vector3( 0, -2, 0 );
 
+
         // gltf Model
+        const helmetFilePath = "/assets/model/damagedHelmet/";
+        const helmetFileName = "damagedHelmet.gltf";
+        const helmetID = "node_damagedHelmet_-6498";
+
         const loader = SceneLoader.Append( "/assets/model/robot/", "scene.gltf",
             this._scene, ( objects ) => {
 
                 objects.createDefaultCamera( true, true, true );
 
-                let meshes = objects.meshes;
+                let meshes: any = objects.meshes;
 
                 console.log( meshes );
 
-                meshes.map( x => {
+                meshes.map( mesh => {
 
-                    if ( x.id === '__root__' ) {
+                    if ( mesh.id === '__root__' ) {
 
-                        x.scaling = new Vector3( 3, 3, 3 );
-                        x.position.y = 10;
-
-                        let material: any = x.material;
-
-                        // material.metallic = 1.0;
-                        // material.roughness = 0;
+                        mesh.scaling = new Vector3( 10, 10, 10 );
+                        mesh.position.y = 10;
 
                     }
 
-                    // FIXME:　GLTFのModelだけ抽出
-                    mirror.material.reflectionTexture.renderList.push( x );
+                    if ( mesh.id === 'node_damagedHelmet_-6498' ) {
 
-                    // FIXME: PBRのモデルrの設定をする
+                        mirror.material.reflectionTexture.renderList.push( mesh );
 
-                    // FIXME: GLTFモデルをBlenderでPBRを適応させる
+                        mesh.material.reflectionTexture = hdrTexture;
+
+                    }
+
+                    if ( mesh.id === "defaultMaterial" ) {
+
+                        mirror.material.reflectionTexture.renderList.push( mesh );
+
+                        mesh.material.reflectionTexture = hdrTexture;
+
+                    }
 
                 } );
 
