@@ -3,21 +3,13 @@ import {
     Scene,
     Vector3,
     HemisphericLight,
-    MeshBuilder,
     ArcRotateCamera,
     HDRCubeTexture,
     SceneLoader,
-    ReflectionProbe,
-    Material,
     StandardMaterial,
-    FresnelParameters,
     Mesh,
     MirrorTexture,
     Plane,
-    BackgroundMaterial,
-    Color3,
-    CubeTexture,
-    PBRMetallicRoughnessMaterial
 } from "babylonjs";
 
 // Debug Layer
@@ -41,13 +33,9 @@ export default class Game {
     private _camera: ArcRotateCamera;
     private _light: HemisphericLight;
 
-    private _sphere: any;
-    private _box: any;
 
     private _hdrSkybox: HDRSkybox;
     private _PBRGlass: PBRGlass;
-    private _planeSphere: PlaneSphere;
-    private _simpleLines: SimpleLines;
 
     /**
      *
@@ -72,13 +60,17 @@ export default class Game {
             "Camera",
             -Math.PI / 2,
             Math.PI / 3,
-            10,
+            50,
             Vector3.Zero(),
             this._scene
         );
 
-        this._camera.setTarget( Vector3.Zero() );
+        this._camera.wheelPrecision = 1;
         this._camera.attachControl( this._canvas, false );
+        this._camera.useAutoRotationBehavior = true;
+        this._camera.upperBetaLimit = Math.PI / 2;
+        this._camera.lowerRadiusLimit = 1;
+        this._camera.upperRadiusLimit = 500;
 
         // Light
         this._light = new HemisphericLight(
@@ -89,18 +81,11 @@ export default class Game {
         this._light.intensity = 0.0;
 
 
-        // sphere
-        // this._planeSphere = new PlaneSphere( this._scene );
-
-        // SimpleLine
-        // this._simpleLines = new SimpleLines( this._scene );
-
-
         // Environment Texture
         const hdrTexture = new HDRCubeTexture(
             "/assets/skybox/HDR_111_Parking_Lot_2_Ref.hdr",
             this._scene,
-            1024
+            512
         );
 
         // HDR Skybox
@@ -138,18 +123,25 @@ export default class Game {
 
 
         // gltf Model
-        const helmetFilePath = "/assets/model/damagedHelmet/";
-        const helmetFileName = "damagedHelmet.gltf";
-        const helmetID = "node_damagedHelmet_-6498";
+        const helmet = {
+            FilePath: "/assets/model/damagedHelmet/",
+            FileName: 'damagedHelmet.gltf',
+            ID: 'node_damagedHelmet_-6498'
+        }
+
+        const robot = {
+            FilePath: '/assets/model/robot',
+            FileName: 'scene.gltf',
+            ID: 'defaultMaterial'
+        }
+
 
         const loader = SceneLoader.Append( "/assets/model/robot/", "scene.gltf",
             this._scene, ( objects ) => {
 
-                objects.createDefaultCamera( true, true, true );
+                // objects.createDefaultCamera( true, true, true );
 
                 let meshes: any = objects.meshes;
-
-                console.log( meshes );
 
                 meshes.map( mesh => {
 
@@ -180,16 +172,6 @@ export default class Game {
 
 
             } );
-
-
-        // Fog
-        // this._scene.fogMode = Scene.FOGMODE_LINEAR;
-        // this._scene.fogMode = Scene.FOGMODE_EXP2;
-        // this._scene.fogColor = new Color3( 0, 0, 0 );
-        // this._scene.fogDensity = 0.005;
-        // this._scene.fogStart = 0.0;
-        // this._scene.fogEnd = 1000.0;
-
 
     }
 

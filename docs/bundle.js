@@ -214,14 +214,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var babylonjs_loaders__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! babylonjs-loaders */ "./node_modules/babylonjs-loaders/babylonjs.loaders.min.js");
 /* harmony import */ var babylonjs_loaders__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(babylonjs_loaders__WEBPACK_IMPORTED_MODULE_3__);
 /* harmony import */ var _skybox_HDRSkybox__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./skybox/HDRSkybox */ "./src/js/scene/skybox/HDRSkybox.ts");
-/* harmony import */ var _object_PBRGlass__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./object/PBRGlass */ "./src/js/scene/object/PBRGlass.ts");
 
 // Debug Layer
 
 // Model Export
 
 // Model Loaders
-
 
 
 class Game {
@@ -240,22 +238,25 @@ class Game {
         // Debug
         this._scene.debugLayer.show();
         // ArcRotationCamera
-        this._camera = new babylonjs__WEBPACK_IMPORTED_MODULE_0__["ArcRotateCamera"]("Camera", -Math.PI / 2, Math.PI / 3, 10, babylonjs__WEBPACK_IMPORTED_MODULE_0__["Vector3"].Zero(), this._scene);
-        this._camera.setTarget(babylonjs__WEBPACK_IMPORTED_MODULE_0__["Vector3"].Zero());
+        this._camera = new babylonjs__WEBPACK_IMPORTED_MODULE_0__["ArcRotateCamera"]("Camera", -Math.PI / 2, Math.PI / 3, 50, babylonjs__WEBPACK_IMPORTED_MODULE_0__["Vector3"].Zero(), this._scene);
+        this._camera.wheelPrecision = 1;
         this._camera.attachControl(this._canvas, false);
+        this._camera.useAutoRotationBehavior = true;
+        this._camera.upperBetaLimit = Math.PI / 2;
+        this._camera.lowerRadiusLimit = 1;
+        this._camera.upperRadiusLimit = 500;
         // Light
         this._light = new babylonjs__WEBPACK_IMPORTED_MODULE_0__["HemisphericLight"]("light", new babylonjs__WEBPACK_IMPORTED_MODULE_0__["Vector3"](0, 1, 0), this._scene);
-        this._light.intensity = 0.1;
-        // sphere
-        // this._planeSphere = new PlaneSphere( this._scene );
-        // SimpleLine
-        // this._simpleLines = new SimpleLines( this._scene );
+        this._light.intensity = 0.0;
         // Environment Texture
         const hdrTexture = new babylonjs__WEBPACK_IMPORTED_MODULE_0__["HDRCubeTexture"]("/assets/skybox/HDR_111_Parking_Lot_2_Ref.hdr", this._scene, 512);
         // HDR Skybox
         this._hdrSkybox = new _skybox_HDRSkybox__WEBPACK_IMPORTED_MODULE_4__["default"](this._scene, hdrTexture);
         // PBR Glass
-        this._PBRGlass = new _object_PBRGlass__WEBPACK_IMPORTED_MODULE_5__["default"](this._scene, hdrTexture);
+        // this._PBRGlass = new PBRGlass(
+        //     this._scene,
+        //     hdrTexture
+        // );
         // Ground: mirror
         let mirror = babylonjs__WEBPACK_IMPORTED_MODULE_0__["Mesh"].CreateBox("Mirror", 1.0, this._scene);
         mirror.scaling = new babylonjs__WEBPACK_IMPORTED_MODULE_0__["Vector3"](100.0, 0.01, 100.0);
@@ -266,34 +267,37 @@ class Game {
         mirror.material.reflectionTexture.mirrorPlane = new babylonjs__WEBPACK_IMPORTED_MODULE_0__["Plane"](0, -1, 0, -2);
         mirror.material.reflectionTexture.renderList = [this._hdrSkybox.hdrSkybox];
         mirror.material.reflectionTexture.level = 1.0;
-        mirror.material.reflectionTexture.adaptiveBlurKernel = 32;
+        mirror.material.reflectionTexture.adaptiveBlurKernel = 8;
         mirror.position = new babylonjs__WEBPACK_IMPORTED_MODULE_0__["Vector3"](0, -2, 0);
         // gltf Model
+        const helmet = {
+            FilePath: "/assets/model/damagedHelmet/",
+            FileName: 'damagedHelmet.gltf',
+            ID: 'node_damagedHelmet_-6498'
+        };
+        const robot = {
+            FilePath: '/assets/model/robot',
+            FileName: 'scene.gltf',
+            ID: 'defaultMaterial'
+        };
         const loader = babylonjs__WEBPACK_IMPORTED_MODULE_0__["SceneLoader"].Append("/assets/model/robot/", "scene.gltf", this._scene, (objects) => {
-            objects.createDefaultCamera(true, true, true);
+            // objects.createDefaultCamera( true, true, true );
             let meshes = objects.meshes;
-            console.log(meshes);
-            meshes.map(x => {
-                if (x.id === '__root__') {
-                    x.scaling = new babylonjs__WEBPACK_IMPORTED_MODULE_0__["Vector3"](3, 3, 3);
-                    x.position.y = 10;
-                    let material = x.material;
-                    // material.metallic = 1.0;
-                    // material.roughness = 0;
+            meshes.map(mesh => {
+                if (mesh.id === '__root__') {
+                    mesh.scaling = new babylonjs__WEBPACK_IMPORTED_MODULE_0__["Vector3"](10, 10, 10);
+                    mesh.position.y = 10;
                 }
-                // FIXME:　GLTFのModelだけ抽出
-                mirror.material.reflectionTexture.renderList.push(x);
-                // FIXME: PBRのモデルrの設定をする
-                // FIXME: GLTFモデルをBlenderでPBRを適応させる
+                if (mesh.id === 'node_damagedHelmet_-6498') {
+                    mirror.material.reflectionTexture.renderList.push(mesh);
+                    mesh.material.reflectionTexture = hdrTexture;
+                }
+                if (mesh.id === "defaultMaterial") {
+                    mirror.material.reflectionTexture.renderList.push(mesh);
+                    mesh.material.reflectionTexture = hdrTexture;
+                }
             });
         });
-        // Fog
-        // this._scene.fogMode = Scene.FOGMODE_LINEAR;
-        // this._scene.fogMode = Scene.FOGMODE_EXP2;
-        // this._scene.fogColor = new Color3( 0, 0, 0 );
-        // this._scene.fogDensity = 0.005;
-        // this._scene.fogStart = 0.0;
-        // this._scene.fogEnd = 1000.0;
     }
     doRender() {
         // render Loop
@@ -304,44 +308,6 @@ class Game {
         window.addEventListener("resize", () => {
             this._engine.resize();
         });
-    }
-}
-
-
-/***/ }),
-
-/***/ "./src/js/scene/object/PBRGlass.ts":
-/*!*****************************************!*\
-  !*** ./src/js/scene/object/PBRGlass.ts ***!
-  \*****************************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return PBRGlass; });
-/* harmony import */ var babylonjs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! babylonjs */ "./node_modules/babylonjs/babylon.js");
-/* harmony import */ var babylonjs__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(babylonjs__WEBPACK_IMPORTED_MODULE_0__);
-
-class PBRGlass {
-    /**
-     *
-     */
-    constructor(scene, hdrTexture) {
-        const _scene = scene;
-        const _hdrTexture = hdrTexture;
-        this.mesh = babylonjs__WEBPACK_IMPORTED_MODULE_0__["Mesh"].CreateSphere('sphereGlass', 48, 80.0, _scene);
-        this.material = new babylonjs__WEBPACK_IMPORTED_MODULE_0__["PBRMaterial"]('glass', _scene);
-        this.material.reflectionTexture = _hdrTexture;
-        this.material.directIntensity = 1.0;
-        this.material.environmentIntensity = 0.1;
-        this.material.cameraExposure = 0.66;
-        this.material.cameraContrast = 1.66;
-        this.material.microSurface = 1;
-        this.material.reflectivityColor = new babylonjs__WEBPACK_IMPORTED_MODULE_0__["Color3"](1.0, 1.0, 1.0);
-        this.material.albedoColor = new babylonjs__WEBPACK_IMPORTED_MODULE_0__["Color3"](0.95, 0.95, 0.95);
-        this.mesh.material = this.material;
-        this.mesh.scaling = new babylonjs__WEBPACK_IMPORTED_MODULE_0__["Vector3"](0.025, 0.025, 0.025);
     }
 }
 
