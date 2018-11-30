@@ -249,7 +249,7 @@ class Game {
         this._light = new babylonjs__WEBPACK_IMPORTED_MODULE_0__["HemisphericLight"]("light", new babylonjs__WEBPACK_IMPORTED_MODULE_0__["Vector3"](0, 1, 0), this._scene);
         this._light.intensity = 0.0;
         // Environment Texture
-        const hdrTexture = new babylonjs__WEBPACK_IMPORTED_MODULE_0__["HDRCubeTexture"]("/assets/skybox/HDR_111_Parking_Lot_2_Ref.hdr", this._scene, 512);
+        const hdrTexture = new babylonjs__WEBPACK_IMPORTED_MODULE_0__["HDRCubeTexture"]("assets/skybox/HDR_111_Parking_Lot_2_Ref.hdr", this._scene, 512);
         // HDR Skybox
         this._hdrSkybox = new _skybox_HDRSkybox__WEBPACK_IMPORTED_MODULE_4__["default"](this._scene, hdrTexture);
         // PBR Glass
@@ -271,22 +271,26 @@ class Game {
         mirror.position = new babylonjs__WEBPACK_IMPORTED_MODULE_0__["Vector3"](0, -2, 0);
         // gltf Model
         const helmet = {
-            FilePath: "/assets/model/damagedHelmet/",
+            FilePath: "assets/model/damagedHelmet/",
             FileName: 'damagedHelmet.gltf',
             ID: 'node_damagedHelmet_-6498'
         };
         const robot = {
-            FilePath: '/assets/model/robot',
+            FilePath: 'assets/model/robot/',
             FileName: 'scene.gltf',
             ID: 'defaultMaterial'
         };
-        const loader = babylonjs__WEBPACK_IMPORTED_MODULE_0__["SceneLoader"].Append("/assets/model/robot/", "scene.gltf", this._scene, (objects) => {
+        const soldier = {
+            FilePath: 'assets/model/Soldier/',
+            FileName: 'Soldier.gltf',
+        };
+        const loader = babylonjs__WEBPACK_IMPORTED_MODULE_0__["SceneLoader"].Append(soldier.FilePath, soldier.FileName, this._scene, (objects) => {
             // objects.createDefaultCamera( true, true, true );
             let meshes = objects.meshes;
             meshes.map(mesh => {
                 if (mesh.id === '__root__') {
                     mesh.scaling = new babylonjs__WEBPACK_IMPORTED_MODULE_0__["Vector3"](10, 10, 10);
-                    mesh.position.y = 10;
+                    mesh.position.y = 0;
                 }
                 if (mesh.id === 'node_damagedHelmet_-6498') {
                     mirror.material.reflectionTexture.renderList.push(mesh);
@@ -296,6 +300,11 @@ class Game {
                     mirror.material.reflectionTexture.renderList.push(mesh);
                     mesh.material.reflectionTexture = hdrTexture;
                 }
+                if (mesh.id === "Paladin_J_Nordstrom") {
+                    mirror.material.reflectionTexture.renderList.push(mesh);
+                    mesh.material.reflectionTexture = hdrTexture;
+                }
+                // Helmet追加
             });
         });
     }
