@@ -10,6 +10,7 @@ import {
     Mesh,
     MirrorTexture,
     Plane,
+    Texture,
 } from "babylonjs";
 
 // Debug Layer
@@ -119,10 +120,17 @@ export default class Game {
         mirror.material.reflectionTexture.renderList = [ this._hdrSkybox.hdrSkybox ];
         mirror.material.reflectionTexture.level = 1.0;
         mirror.material.reflectionTexture.adaptiveBlurKernel = 8;
-        mirror.position = new Vector3( 0, -2, 0 );
+        mirror.position = new Vector3( 0, 0, 0 );
+
+        // npm でextensionsをinstallする必要がある
+        // water
+        // const ground = Mesh.CreateGround( 'ground', 512, 512, 32, this._scene );
+        // const waterMaterial = new WaterMaterial( 'water_material', this._scene );
+        // waterMaterial.bumpTexture = new Texture( 'bump.png', this._scene );
+        // ground.material = waterMaterial;
 
 
-        // gltf Model
+        // GLTF Model
         const helmet = {
             FilePath: "assets/model/damagedHelmet/",
             FileName: 'damagedHelmet.gltf',
@@ -140,7 +148,7 @@ export default class Game {
             FileName: 'Soldier.gltf',
         }
 
-
+        // GLTF Loader
         const loader = SceneLoader.Append( soldier.FilePath, soldier.FileName,
             this._scene, ( objects ) => {
 
