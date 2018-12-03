@@ -7,7 +7,10 @@
             "babylonjs",
             "babylonjs-serializers",
             "babylonjs-inspector",
-            "babylonjs-loaders"
+            "babylonjs-loaders",
+            "babylonjs-materials",
+            "babylonjs-post-process",
+            // "oneMoreDependencyThatIReallyNeed"
             // "anotherAwesomeDependency"
          ],
         "esModuleInterop": true,

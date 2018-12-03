@@ -11,6 +11,13 @@ import {
     MirrorTexture,
     Plane,
     Texture,
+    WaterMaterial,
+    Vector2,
+    Color3,
+    SkyMaterial,
+    PostProcessRenderPipeline,
+    BlackAndWhitePostProcess,
+    PostProcessRenderEffect,
 } from "babylonjs";
 
 // Debug Layer
@@ -21,6 +28,13 @@ import "babylonjs-serializers"
 
 // Model Loaders
 import "babylonjs-loaders"
+
+// extentions 
+// materilal
+import 'babylonjs-materials'
+
+// post-process
+import 'babylonjs-post-process'
 
 import HDRSkybox from './skybox/HDRSkybox'
 import PBRGlass from './object/PBRGlass'
@@ -90,10 +104,10 @@ export default class Game {
         );
 
         // HDR Skybox
-        this._hdrSkybox = new HDRSkybox(
-            this._scene,
-            hdrTexture
-        );
+        // this._hdrSkybox = new HDRSkybox(
+        //     this._scene,
+        //     hdrTexture
+        // );
 
         // PBR Glass
         // this._PBRGlass = new PBRGlass(
@@ -102,33 +116,60 @@ export default class Game {
         // );
 
         // Ground: mirror
-        let mirror: any = Mesh.CreateBox(
-            "Mirror",
-            1.0,
-            this._scene
-        );
-        mirror.scaling = new Vector3( 100.0, 0.01, 100.0 );
-        mirror.material = new StandardMaterial( 'mirror', this._scene );
-        mirror.material.reflectionTexture = new MirrorTexture(
-            'mirror', {
-                ratio: 1.0
-            },
-            this._scene,
-            true
-        );
-        mirror.material.reflectionTexture.mirrorPlane = new Plane( 0, -1, 0, -2 );
-        mirror.material.reflectionTexture.renderList = [ this._hdrSkybox.hdrSkybox ];
-        mirror.material.reflectionTexture.level = 1.0;
-        mirror.material.reflectionTexture.adaptiveBlurKernel = 8;
-        mirror.position = new Vector3( 0, 0, 0 );
+        // let mirror: any = Mesh.CreateBox(
+        //     "Mirror",
+        //     1.0,
+        //     this._scene
+        // );
+        // mirror.scaling = new Vector3( 100.0, 0.01, 100.0 );
+        // mirror.material = new StandardMaterial( 'mirror', this._scene );
+        // mirror.material.reflectionTexture = new MirrorTexture(
+        //     'mirror', {
+        //         ratio: 1.0
+        //     },
+        //     this._scene,
+        //     true
+        // );
+        // mirror.material.reflectionTexture.mirrorPlane = new Plane( 0, -1, 0, -2 );
+        // mirror.material.reflectionTexture.renderList = [ this._hdrSkybox.hdrSkybox ];
+        // mirror.material.reflectionTexture.level = 1.0;
+        // mirror.material.reflectionTexture.adaptiveBlurKernel = 8;
+        // mirror.position = new Vector3( 0, 0, 0 );
 
-        // npm でextensionsをinstallする必要がある
+
+        //sky
+        const skyMaterial = new SkyMaterial( 'skyMaterial', this._scene );
+        skyMaterial.backFaceCulling = false;
+        const skybox = Mesh.CreateBox( 'skyBox', 1000.0, this._scene );
+        skybox.material = skyMaterial;
+        skyMaterial.turbidity = 5;
+        skyMaterial.luminance = 0.5;
+        skyMaterial.rayleigh = 1;
+
+        // Reflection probe
+        var rp = new BABYLON.ReflectionProbe( 'ref', 512, this._scene );
+        rp.renderList.push( skybox );
+
+        // PBR
+        var pbr = new BABYLON.PBRMaterial( 'pbr', this._scene );
+        pbr.reflectionTexture = rp.cubeTexture;
+
         // water
-        // const ground = Mesh.CreateGround( 'ground', 512, 512, 32, this._scene );
-        // const waterMaterial = new WaterMaterial( 'water_material', this._scene );
-        // waterMaterial.bumpTexture = new Texture( 'bump.png', this._scene );
-        // ground.material = waterMaterial;
-
+        const ground = Mesh.CreateGround( 'ground', 1024, 1024, 32, this._scene );
+        const waterMaterial = new WaterMaterial( 'water_material', this._scene );
+        waterMaterial.bumpTexture = new Texture( 'assets/texture/bump.png', this._scene );
+        ground.material = waterMaterial;
+        // 反射するMeshを追加
+        // waterMaterial.addToRenderList( this._hdrSkybox.hdrSkybox );
+        waterMaterial.addToRenderList( skybox );
+        // water カスタム
+        waterMaterial.windForce = 20;
+        waterMaterial.waveHeight = 0.5;
+        waterMaterial.bumpHeight = 0.5;
+        waterMaterial.windDirection = new Vector2( 1.0, 1.0 );
+        waterMaterial.waterColor = new Color3( 0.1, 0.1, 0.6 );
+        waterMaterial.colorBlendFactor = 0.1;
+        waterMaterial.waveLength = 0.1;
 
         // GLTF Model
         const helmet = {
@@ -167,25 +208,30 @@ export default class Game {
 
                     if ( mesh.id === 'node_damagedHelmet_-6498' ) {
 
-                        mirror.material.reflectionTexture.renderList.push( mesh );
+                        // mirror.material.reflectionTexture.renderList.push( mesh );
 
-                        mesh.material.reflectionTexture = hdrTexture;
+                        // mesh.material.reflectionTexture = hdrTexture;
 
                     }
 
                     if ( mesh.id === "defaultMaterial" ) {
 
-                        mirror.material.reflectionTexture.renderList.push( mesh );
+                        // mirror.material.reflectionTexture.renderList.push( mesh );
 
-                        mesh.material.reflectionTexture = hdrTexture;
+                        // mesh.material.reflectionTexture = hdrTexture;
 
                     }
 
                     if ( mesh.id === "Paladin_J_Nordstrom" ) {
 
-                        mirror.material.reflectionTexture.renderList.push( mesh );
+                        // mirror.material.reflectionTexture.renderList.push( mesh );
 
-                        mesh.material.reflectionTexture = hdrTexture;
+                        // mesh.material.reflectionTexture = hdrTexture;
+
+                        mesh.material.reflectionTexture = pbr.reflectionTexture
+
+                        waterMaterial.addToRenderList( mesh );
+
 
                     }
 
@@ -196,6 +242,19 @@ export default class Game {
 
             } );
 
+
+        // Post-Process
+        const standardPipeline = new PostProcessRenderPipeline( this._engine, "standardPipeline" );
+
+        const blackAndWhite = new BlackAndWhitePostProcess( "bw", 1.0, null, null, this._engine, false );
+
+        var blackAndWhiteThenBlur = new PostProcessRenderEffect( this._engine, "blackAndWhiteThenBlur", function () {
+            return [ blackAndWhite ]
+        } );
+        standardPipeline.addEffect( blackAndWhiteThenBlur );
+
+        this._scene.postProcessRenderPipelineManager.addPipeline( standardPipeline );
+        this._scene.postProcessRenderPipelineManager.attachCamerasToRenderPipeline( "standardPipeline", this._camera );
     }
 
     doRender(): void {

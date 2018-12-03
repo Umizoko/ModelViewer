@@ -16,6 +16,8 @@
     "babylonjs": "^3.3.0",
     "babylonjs-inspector": "^3.3.0",
     "babylonjs-loaders": "^3.3.0",
+    "babylonjs-materials": "^3.3.0",
+    "babylonjs-post-process": "^3.3.0",
     "babylonjs-serializers": "^3.3.0",
     "css-loader": "^1.0.1",
     "file-loader": "^2.0.0",
