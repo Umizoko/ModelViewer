@@ -84,8 +84,8 @@ export default class Game {
         this._camera.attachControl( this._canvas, false );
         this._camera.useAutoRotationBehavior = true;
         this._camera.upperBetaLimit = Math.PI / 2;
-        this._camera.lowerRadiusLimit = 1;
-        this._camera.upperRadiusLimit = 500;
+        this._camera.lowerRadiusLimit = 10;
+        this._camera.upperRadiusLimit = 100;
 
         // Light
         this._light = new HemisphericLight(
@@ -93,7 +93,7 @@ export default class Game {
             new Vector3( 0, 1, 0 ),
             this._scene
         );
-        this._light.intensity = 0.0;
+        this._light.intensity = 0.5;
 
 
         // Environment Texture
@@ -189,6 +189,11 @@ export default class Game {
             FileName: 'Soldier.gltf',
         }
 
+        const miku = {
+            FilePath: 'assets/model/append/',
+            FileName: 'miku.gltf'
+        }
+
         // GLTF Loader
         const loader = SceneLoader.Append( soldier.FilePath, soldier.FileName,
             this._scene, ( objects ) => {
@@ -235,13 +240,39 @@ export default class Game {
 
                     }
 
+                    const a = mesh.id.match( /^Tda式ミク・アペンド_/ );
+                    if ( a ) {
+                        console.log( a );
+                        if ( a.input === 'Tda式ミク・アペンド_arm' ) return;
+                        if ( a.input === 'Tda式ミク・アペンド_mesh' ) return;
+                        if ( a.input === 'Tda式ミク・アペンド_arm_操作中心' ) return;
+
+
+                        mesh.material.reflectionTexture = pbr.reflectionTexture
+
+                        waterMaterial.addToRenderList( mesh );
+                    }
+
+                    // if ( mesh.id === /^Tda/ ) {
+
+
+                    //     // mirror.material.reflectionTexture.renderList.push( mesh );
+
+                    //     // mesh.material.reflectionTexture = hdrTexture;
+
+                    //     mesh.material.reflectionTexture = pbr.reflectionTexture
+
+                    //     waterMaterial.addToRenderList( mesh );
+
+
+                    // }
+
                     // Helmet追加
 
                 } );
 
 
             } );
-
 
         // Post-Process
         const standardPipeline = new PostProcessRenderPipeline( this._engine, "standardPipeline" );

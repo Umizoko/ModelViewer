@@ -272,11 +272,11 @@ class Game {
         this._camera.attachControl(this._canvas, false);
         this._camera.useAutoRotationBehavior = true;
         this._camera.upperBetaLimit = Math.PI / 2;
-        this._camera.lowerRadiusLimit = 1;
-        this._camera.upperRadiusLimit = 500;
+        this._camera.lowerRadiusLimit = 10;
+        this._camera.upperRadiusLimit = 100;
         // Light
         this._light = new babylonjs__WEBPACK_IMPORTED_MODULE_0__["HemisphericLight"]("light", new babylonjs__WEBPACK_IMPORTED_MODULE_0__["Vector3"](0, 1, 0), this._scene);
-        this._light.intensity = 0.0;
+        this._light.intensity = 0.5;
         // Environment Texture
         const hdrTexture = new babylonjs__WEBPACK_IMPORTED_MODULE_0__["HDRCubeTexture"]("assets/skybox/HDR_111_Parking_Lot_2_Ref.hdr", this._scene, 512);
         // HDR Skybox
@@ -354,6 +354,10 @@ class Game {
             FilePath: 'assets/model/Soldier/',
             FileName: 'Soldier.gltf',
         };
+        const miku = {
+            FilePath: 'assets/model/append/',
+            FileName: 'miku.gltf'
+        };
         // GLTF Loader
         const loader = babylonjs__WEBPACK_IMPORTED_MODULE_0__["SceneLoader"].Append(soldier.FilePath, soldier.FileName, this._scene, (objects) => {
             // objects.createDefaultCamera( true, true, true );
@@ -377,6 +381,24 @@ class Game {
                     mesh.material.reflectionTexture = pbr.reflectionTexture;
                     waterMaterial.addToRenderList(mesh);
                 }
+                const a = mesh.id.match(/^Tda式ミク・アペンド_/);
+                if (a) {
+                    console.log(a);
+                    if (a.input === 'Tda式ミク・アペンド_arm')
+                        return;
+                    if (a.input === 'Tda式ミク・アペンド_mesh')
+                        return;
+                    if (a.input === 'Tda式ミク・アペンド_arm_操作中心')
+                        return;
+                    mesh.material.reflectionTexture = pbr.reflectionTexture;
+                    waterMaterial.addToRenderList(mesh);
+                }
+                // if ( mesh.id === /^Tda/ ) {
+                //     // mirror.material.reflectionTexture.renderList.push( mesh );
+                //     // mesh.material.reflectionTexture = hdrTexture;
+                //     mesh.material.reflectionTexture = pbr.reflectionTexture
+                //     waterMaterial.addToRenderList( mesh );
+                // }
                 // Helmet追加
             });
         });
