@@ -18,28 +18,31 @@ import {
     PostProcessRenderPipeline,
     BlackAndWhitePostProcess,
     PostProcessRenderEffect,
+    FxaaPostProcess,
+    HighlightsPostProcess,
+    BloomMergePostProcess
 } from "babylonjs";
 
 // Debug Layer
-import "babylonjs-inspector"
+import "babylonjs-inspector";
 
 // Model Export
-import "babylonjs-serializers"
+import "babylonjs-serializers";
 
 // Model Loaders
-import "babylonjs-loaders"
+import "babylonjs-loaders";
 
-// extentions 
+// extentions
 // materilal
-import 'babylonjs-materials'
+import "babylonjs-materials";
 
 // post-process
-import 'babylonjs-post-process'
+import "babylonjs-post-process";
 
-import HDRSkybox from './skybox/HDRSkybox'
-import PBRGlass from './object/PBRGlass'
-import PlaneSphere from './object/PlaneSphere'
-import SimpleLines from './object/SimpleLines'
+import HDRSkybox from "./skybox/HDRSkybox";
+import PBRGlass from "./object/PBRGlass";
+import PlaneSphere from "./object/PlaneSphere";
+import SimpleLines from "./object/SimpleLines";
 
 export default class Game {
     private _canvas: HTMLCanvasElement;
@@ -47,7 +50,6 @@ export default class Game {
     private _scene: Scene;
     private _camera: ArcRotateCamera;
     private _light: HemisphericLight;
-
 
     private _hdrSkybox: HDRSkybox;
     private _PBRGlass: PBRGlass;
@@ -63,7 +65,6 @@ export default class Game {
     }
 
     createScene(): void {
-
         // Scene
         this._scene = new Scene( this._engine );
 
@@ -94,7 +95,6 @@ export default class Game {
             this._scene
         );
         this._light.intensity = 0.5;
-
 
         // Environment Texture
         const hdrTexture = new HDRCubeTexture(
@@ -136,28 +136,30 @@ export default class Game {
         // mirror.material.reflectionTexture.adaptiveBlurKernel = 8;
         // mirror.position = new Vector3( 0, 0, 0 );
 
-
         //sky
-        const skyMaterial = new SkyMaterial( 'skyMaterial', this._scene );
+        const skyMaterial = new SkyMaterial( "skyMaterial", this._scene );
         skyMaterial.backFaceCulling = false;
-        const skybox = Mesh.CreateBox( 'skyBox', 1000.0, this._scene );
+        const skybox = Mesh.CreateBox( "skyBox", 1000.0, this._scene );
         skybox.material = skyMaterial;
         skyMaterial.turbidity = 5;
         skyMaterial.luminance = 0.5;
         skyMaterial.rayleigh = 1;
 
         // Reflection probe
-        var rp = new BABYLON.ReflectionProbe( 'ref', 512, this._scene );
+        var rp = new BABYLON.ReflectionProbe( "ref", 512, this._scene );
         rp.renderList.push( skybox );
 
         // PBR
-        var pbr = new BABYLON.PBRMaterial( 'pbr', this._scene );
+        var pbr = new BABYLON.PBRMaterial( "pbr", this._scene );
         pbr.reflectionTexture = rp.cubeTexture;
 
         // water
-        const ground = Mesh.CreateGround( 'ground', 1024, 1024, 32, this._scene );
-        const waterMaterial = new WaterMaterial( 'water_material', this._scene );
-        waterMaterial.bumpTexture = new Texture( 'assets/texture/bump.png', this._scene );
+        const ground = Mesh.CreateGround( "ground", 1024, 1024, 32, this._scene );
+        const waterMaterial = new WaterMaterial( "water_material", this._scene );
+        waterMaterial.bumpTexture = new Texture(
+            "assets/texture/bump.png",
+            this._scene
+        );
         ground.material = waterMaterial;
         // 反射するMeshを追加
         // waterMaterial.addToRenderList( this._hdrSkybox.hdrSkybox );
@@ -174,87 +176,75 @@ export default class Game {
         // GLTF Model
         const helmet = {
             FilePath: "assets/model/damagedHelmet/",
-            FileName: 'damagedHelmet.gltf',
-            ID: 'node_damagedHelmet_-6498'
-        }
+            FileName: "damagedHelmet.gltf",
+            ID: "node_damagedHelmet_-6498"
+        };
 
         const robot = {
-            FilePath: 'assets/model/robot/',
-            FileName: 'scene.gltf',
-            ID: 'defaultMaterial'
-        }
+            FilePath: "assets/model/robot/",
+            FileName: "scene.gltf",
+            ID: "defaultMaterial"
+        };
 
         const soldier = {
-            FilePath: 'assets/model/Soldier/',
-            FileName: 'Soldier.gltf',
-        }
+            FilePath: "assets/model/Soldier/",
+            FileName: "Soldier.gltf"
+        };
 
         const miku = {
-            FilePath: 'assets/model/append/',
-            FileName: 'miku.gltf'
-        }
+            FilePath: "assets/model/append/",
+            FileName: "miku.gltf"
+        };
 
         // GLTF Loader
-        const loader = SceneLoader.Append( soldier.FilePath, soldier.FileName,
-            this._scene, ( objects ) => {
-
+        const loader = SceneLoader.Append(
+            soldier.FilePath,
+            soldier.FileName,
+            this._scene,
+            objects => {
                 // objects.createDefaultCamera( true, true, true );
 
                 let meshes: any = objects.meshes;
 
                 meshes.map( mesh => {
-
-                    if ( mesh.id === '__root__' ) {
-
+                    if ( mesh.id === "__root__" ) {
                         mesh.scaling = new Vector3( 10, 10, 10 );
                         mesh.position.y = 0;
-
                     }
 
-                    if ( mesh.id === 'node_damagedHelmet_-6498' ) {
-
+                    if ( mesh.id === "node_damagedHelmet_-6498" ) {
                         // mirror.material.reflectionTexture.renderList.push( mesh );
-
                         // mesh.material.reflectionTexture = hdrTexture;
-
                     }
 
                     if ( mesh.id === "defaultMaterial" ) {
-
                         // mirror.material.reflectionTexture.renderList.push( mesh );
-
                         // mesh.material.reflectionTexture = hdrTexture;
-
                     }
 
                     if ( mesh.id === "Paladin_J_Nordstrom" ) {
-
                         // mirror.material.reflectionTexture.renderList.push( mesh );
 
                         // mesh.material.reflectionTexture = hdrTexture;
 
-                        mesh.material.reflectionTexture = pbr.reflectionTexture
+                        mesh.material.reflectionTexture = pbr.reflectionTexture;
 
                         waterMaterial.addToRenderList( mesh );
-
-
                     }
 
                     const a = mesh.id.match( /^Tda式ミク・アペンド_/ );
                     if ( a ) {
                         console.log( a );
-                        if ( a.input === 'Tda式ミク・アペンド_arm' ) return;
-                        if ( a.input === 'Tda式ミク・アペンド_mesh' ) return;
-                        if ( a.input === 'Tda式ミク・アペンド_arm_操作中心' ) return;
+                        if ( a.input === "Tda式ミク・アペンド_arm" ) return;
+                        if ( a.input === "Tda式ミク・アペンド_mesh" ) return;
+                        if ( a.input === "Tda式ミク・アペンド_arm_操作中心" ) return;
 
-
-                        mesh.material.reflectionTexture = pbr.reflectionTexture
+                        mesh.material.reflectionTexture = pbr.reflectionTexture;
 
                         waterMaterial.addToRenderList( mesh );
                     }
 
                     // if ( mesh.id === /^Tda/ ) {
-
 
                     //     // mirror.material.reflectionTexture.renderList.push( mesh );
 
@@ -264,45 +254,63 @@ export default class Game {
 
                     //     waterMaterial.addToRenderList( mesh );
 
-
                     // }
 
                     // Helmet追加
-
                 } );
-
-
-            } );
+            }
+        );
 
         // Post-Process
-        const standardPipeline = new PostProcessRenderPipeline( this._engine, "standardPipeline" );
+        const standardPipeline = new PostProcessRenderPipeline(
+            this._engine,
+            "standardPipeline"
+        );
 
-        const blackAndWhite = new BlackAndWhitePostProcess( "bw", 1.0, null, null, this._engine, false );
+        // const blackAndWhite = new BlackAndWhitePostProcess(
+        //     "bw",
+        //     1.0,
+        //     null,
+        //     null,
+        //     this._engine,
+        //     false
+        // );
 
-        var blackAndWhiteThenBlur = new PostProcessRenderEffect( this._engine, "blackAndWhiteThenBlur", function () {
-            return [ blackAndWhite ]
-        } );
-        standardPipeline.addEffect( blackAndWhiteThenBlur );
+        const fxaa = new FxaaPostProcess( 'fxaa', 1.0, this._camera );
+
+        // bloom
+        // const bloom = new BloomMergePostProcess( 'bloom', this, 1.0, 1.0, 1.0, this._camera );
+        // depth
+        // let hightlights = new HighlightsPostProcess( 'hightlights', 1.0, this._camera );
+
+        var postprocess = new PostProcessRenderEffect(
+            this._engine,
+            "postprocess",
+            function () {
+                return [
+                    fxaa,
+                    // hightlights
+                ];
+            }
+        );
+        standardPipeline.addEffect( postprocess );
 
         this._scene.postProcessRenderPipelineManager.addPipeline( standardPipeline );
-        this._scene.postProcessRenderPipelineManager.attachCamerasToRenderPipeline( "standardPipeline", this._camera );
+        this._scene.postProcessRenderPipelineManager.attachCamerasToRenderPipeline(
+            "standardPipeline",
+            this._camera
+        );
     }
 
     doRender(): void {
-
         // render Loop
         this._engine.runRenderLoop( () => {
-
             this._scene.render();
-
         } );
 
         // canvas/widow resize
         window.addEventListener( "resize", () => {
-
             this._engine.resize();
-
         } );
-
     }
 }
