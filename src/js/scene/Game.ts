@@ -40,6 +40,8 @@ import SimpleLines from "./object/SimpleLines";
 
 import pipeline from './render/Pipeline';
 import Mirror from "./object/Mirror";
+import Skybox from "./skybox/Skybox";
+import Water from "./object/Water";
 
 export default class Game {
     private _canvas: HTMLCanvasElement;
@@ -101,40 +103,19 @@ export default class Game {
         // );
 
         //sky
-        const skyMaterial = new SkyMaterial( "skyMaterial", this._scene );
-        skyMaterial.backFaceCulling = false;
-        const skybox = Mesh.CreateBox( "skyBox", 1000.0, this._scene );
-        skybox.material = skyMaterial;
-        skyMaterial.turbidity = 5;
-        skyMaterial.luminance = 0.5;
-        skyMaterial.rayleigh = 1;
+        const skybox = new Skybox( this._scene );
 
         // Reflection probe
         var rp = new BABYLON.ReflectionProbe( "ref", 512, this._scene );
-        rp.renderList.push( skybox );
+        rp.renderList.push( skybox.mesh );
 
-        // PBR
+        // PBRMaterial
         var pbr = new BABYLON.PBRMaterial( "pbr", this._scene );
         pbr.reflectionTexture = rp.cubeTexture;
 
         // water
-        const ground = Mesh.CreateGround( "ground", 1024, 1024, 32, this._scene );
-        const waterMaterial = new WaterMaterial( "water_material", this._scene );
-        waterMaterial.bumpTexture = new Texture(
-            "assets/texture/bump.png",
-            this._scene
-        );
-        ground.material = waterMaterial;
-        // 反射するMeshを追加
-        waterMaterial.addToRenderList( skybox );
-        // water カスタム
-        waterMaterial.windForce = 20;
-        waterMaterial.waveHeight = 0.5;
-        waterMaterial.bumpHeight = 0.5;
-        waterMaterial.windDirection = new Vector2( 1.0, 1.0 );
-        waterMaterial.waterColor = new Color3( 0.1, 0.1, 0.6 );
-        waterMaterial.colorBlendFactor = 0.1;
-        waterMaterial.waveLength = 0.1;
+        const water = new Water( this._scene );
+        water.addToRenderList( skybox.mesh );
 
 
         // GLTF Model
@@ -188,7 +169,7 @@ export default class Game {
                         // mesh.material.reflectionTexture = hdrTexture;
                         mesh.material.reflectionTexture = pbr.reflectionTexture;
 
-                        waterMaterial.addToRenderList( mesh );
+                        water.addToRenderList( mesh );
                     }
 
                     const a = mesh.id.match( /^Tda式ミク・アペンド_/ );
@@ -200,7 +181,7 @@ export default class Game {
 
                         mesh.material.reflectionTexture = pbr.reflectionTexture;
 
-                        waterMaterial.addToRenderList( mesh );
+                        water.addToRenderList( mesh );
                     }
 
                     // if ( mesh.id === /^Tda/ ) {
@@ -222,7 +203,6 @@ export default class Game {
 
 
         // renderPipelineの設定
-        // FXAA　BLOOM　DepthOfField
         pipeline( this._scene, this._camera );
 
     }
