@@ -6,15 +6,6 @@ import {
     ArcRotateCamera,
     HDRCubeTexture,
     SceneLoader,
-    StandardMaterial,
-    Mesh,
-    MirrorTexture,
-    Plane,
-    Texture,
-    WaterMaterial,
-    Vector2,
-    Color3,
-    SkyMaterial,
 } from "babylonjs";
 
 // Debug Layer
@@ -35,11 +26,8 @@ import "babylonjs-post-process";
 
 import HDRSkybox from "./skybox/HDRSkybox";
 import PBRGlass from "./object/PBRGlass";
-import PlaneSphere from "./object/PlaneSphere";
-import SimpleLines from "./object/SimpleLines";
 
 import pipeline from './render/Pipeline';
-import Mirror from "./object/Mirror";
 import Skybox from "./skybox/Skybox";
 import Water from "./object/Water";
 
