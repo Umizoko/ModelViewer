@@ -129,10 +129,15 @@ export default class Game {
             FileName: "miku.gltf"
         };
 
+        const ai = {
+            FilePath: "assets/model/KizunaAI/",
+            FileName: "ai.gltf"
+        };
+
         // GLTF Loader
         const loader = SceneLoader.Append(
-            soldier.FilePath,
-            soldier.FileName,
+            ai.FilePath,
+            ai.FileName,
             this._scene,
             objects => {
 
@@ -140,7 +145,7 @@ export default class Game {
 
                 meshes.map( mesh => {
                     if ( mesh.id === "__root__" ) {
-                        mesh.scaling = new Vector3( 10, 10, 10 );
+                        mesh.scaling = new Vector3( 5, 5, 5 );
                         mesh.position.y = 0;
                     }
 
