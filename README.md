@@ -2,7 +2,7 @@
 
 BabylonJS DEMO
 
-![image](./screenshot/MarkerTheDance.jpg)
+![image](./screenshot/ModelViewer.jpg)
 
 ## Description
 
