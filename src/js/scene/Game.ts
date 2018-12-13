@@ -4,7 +4,6 @@ import {
     Vector3,
     HemisphericLight,
     ArcRotateCamera,
-    HDRCubeTexture,
     SceneLoader,
 } from "babylonjs";
 
@@ -107,89 +106,46 @@ export default class Game {
 
 
         // GLTF Model
-        const helmet = {
-            FilePath: "assets/model/damagedHelmet/",
-            FileName: "damagedHelmet.gltf",
-            ID: "node_damagedHelmet_-6498"
-        };
-
-        const robot = {
-            FilePath: "assets/model/robot/",
-            FileName: "scene.gltf",
-            ID: "defaultMaterial"
-        };
-
         const soldier = {
             FilePath: "assets/model/Soldier/",
             FileName: "Soldier.gltf"
         };
 
-        const miku = {
-            FilePath: "assets/model/append/",
-            FileName: "miku.gltf"
-        };
-
-        const ai = {
-            FilePath: "assets/model/KizunaAI/",
-            FileName: "ai.gltf"
-        };
 
         // GLTF Loader
         const loader = SceneLoader.Append(
-            ai.FilePath,
-            ai.FileName,
+            soldier.FilePath,
+            soldier.FileName,
             this._scene,
             objects => {
 
                 let meshes: any = objects.meshes;
 
+                console.log( meshes );
+
                 meshes.map( mesh => {
                     if ( mesh.id === "__root__" ) {
-                        mesh.scaling = new Vector3( 5, 5, 5 );
+                        mesh.scaling = new Vector3( 10, 10, 10 );
                         mesh.position.y = 0;
                     }
 
-                    if ( mesh.id === "node_damagedHelmet_-6498" ) {
-                        // mesh.material.reflectionTexture = hdrTexture;
-                    }
+                    if ( mesh.id === "node_damagedHelmet_-6498" ) {}
 
-                    if ( mesh.id === "defaultMaterial" ) {
-                        // mesh.material.reflectionTexture = hdrTexture;
-                    }
+                    if ( mesh.id === "defaultMaterial" ) {}
 
                     if ( mesh.id === "Paladin_J_Nordstrom" ) {
 
-                        // mesh.material.reflectionTexture = hdrTexture;
                         mesh.material.reflectionTexture = pbr.reflectionTexture;
 
                         water.addToRenderList( mesh );
                     }
 
-                    const a = mesh.id.match( /^Tda式ミク・アペンド_/ );
-                    if ( a ) {
-                        console.log( a );
-                        if ( a.input === "Tda式ミク・アペンド_arm" ) return;
-                        if ( a.input === "Tda式ミク・アペンド_mesh" ) return;
-                        if ( a.input === "Tda式ミク・アペンド_arm_操作中心" ) return;
-
+                    if ( mesh.id === "Paladin_J_Nordstrom_Helmet" ) {
                         mesh.material.reflectionTexture = pbr.reflectionTexture;
 
                         water.addToRenderList( mesh );
                     }
 
-                    // if ( mesh.id === /^Tda/ ) {
-
-                    //     // mirror.material.reflectionTexture.renderList.push( mesh );
-
-                    //     // mesh.material.reflectionTexture = hdrTexture;
-
-                    //     mesh.material.reflectionTexture = pbr.reflectionTexture
-
-                    //     waterMaterial.addToRenderList( mesh );
-
-                    // }
-
-                    // Helmet追加
                 } );
             }
         );
